@@ -10,6 +10,19 @@ st.sidebar.title("ChatIQ")
 #this is for uploadin a file
 uploaded_file = st.sidebar.file_uploader("Choose a file")
 
+st.markdown("""
+## Extracting WhatsApp Chat
+To extract a WhatsApp chat from any group chat or individual chat, follow these steps:
+
+1. Open WhatsApp on mobile and navigate to the chat you want to extract.
+2. Tap on the three dots in the top-right corner to open the menu.
+3. Select "More" and then "Export chat".
+4. Choose not to include media file.
+5. Select the method of sharing (e.g., email, Google Drive, etc.) and send the chat to yourself.
+6. Once received, download the chat file to your computer.
+7. Upload the chat file to ChatIQ for analysis.
+""")
+
 if uploaded_file is not None:
   bytes_data = uploaded_file.read()
 
@@ -130,5 +143,3 @@ if uploaded_file is not None:
       plt.xticks(rotation='vertical')
       plt.tight_layout()
       st.pyplot(fig)
-
-
