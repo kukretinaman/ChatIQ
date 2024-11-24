@@ -7,6 +7,7 @@ import emoji
 
 extract = URLExtract()
 
+
 #fetching the stats
 def fetchstats(selected_user, df):
   #if the selected user is a specified user, then make changes in the dataframe, else do not
@@ -28,6 +29,7 @@ def fetchstats(selected_user, df):
 
   return num_messages, len(words), mediaomitted.shape[0], len(links)
 
+
 #most busy users {group level}
 def fetchbusyuser(df):
   count = df['User'].value_counts().head()
@@ -35,12 +37,13 @@ def fetchbusyuser(df):
   newdf = pd.DataFrame((df['User'].value_counts() / df.shape[0]) * 100)
   return count, newdf
 
+
 #creating word cloud
 def createwordcloud(selected_user, df):
-  file=open('stop_hinglish.txt')
+  file = open('stop_hinglish.txt')
   stopwords = file.read()
   stopwords = stopwords.split('\n')
-  
+
   if selected_user != 'Overall':
     df = df[df['User'] == selected_user]
 
@@ -52,15 +55,16 @@ def createwordcloud(selected_user, df):
   df_wc = wc.generate(df['Message'].str.cat(sep=" "))
   return df_wc
 
+
 #most common words
 def getcommonwords(selected_user, df):
 
   #getting the stopwords
 
-  file=open('stop_hinglish.txt')
+  file = open('stop_hinglish.txt')
   stopwords = file.read()
   stopwords = stopwords.split('\n')
-  
+
   if selected_user != 'Overall':
     df = df[df['User'] == selected_user]
 
@@ -76,6 +80,7 @@ def getcommonwords(selected_user, df):
   mostcommon = pd.DataFrame(Counter(words).most_common(20))
   return mostcommon
 
+
 def getemojistats(selected_user, df):
   if selected_user != 'Overall':
     df = df[df['User'] == selected_user]
@@ -86,6 +91,7 @@ def getemojistats(selected_user, df):
 
   emoji_df = pd.DataFrame(Counter(emojis).most_common(len(Counter(emojis))))
   return emoji_df
+
 
 def monthtimeline(selected_user, df):
   if selected_user != 'Overall':
@@ -100,6 +106,7 @@ def monthtimeline(selected_user, df):
 
   temp['Time'] = time
   return temp
+
 
 def weekactivitymap(selected_user, df):
   if selected_user != 'Overall':

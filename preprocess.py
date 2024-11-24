@@ -1,35 +1,39 @@
-import streamlit as st
-import numpy as np
-import pandas as pd
 import re
-# import seaborn as sns
-
-# def getString(text):
+import pandas as pd
 
 
 def preprocess(data):
-  # Define a regular expression pattern to extract date, user, and message
-  pattern = r'^(\d{2}/\d{2}/\d{2}), (\d{1,2}:\d{2}\s*[ap]m) - ([^:]+): (.*)$'
+  pattern1 = r'^(\d{2}/\d{2}/\d{2}), (\d{1,2}:\d{2}\s*[APap][Mm]) - ([^:]+): (.+)$'
+  pattern2 = r'^\[(\d{2}/\d{2}/\d{2}), (\d{1,2}:\d{2}:\d{2}\s*[APap][Mm])\] ([^:]+): (.+)$'
 
-  #defining the lists to create the dataframe
   date = []
   time = []
   user = []
   message = []
+  unmatched_lines = []
 
   for text in data:
-    # Use regular expression to match the pattern and extract date, user, and message
-    match = re.match(pattern, text)
-    if match:
-      date_ = match.group(1)
-      time_ = match.group(2)
-      user_ = match.group(3)
-      message_ = match.group(4)
+    match1 = re.match(pattern1, text)
+    match2 = re.match(pattern2, text)
 
-      date.append(date_)
-      time.append(time_)
-      user.append(user_)
-      message.append(message_)
+    if match1:
+      date.append(match1.group(1))
+      time.append(match1.group(2))
+      user.append(match1.group(3))
+      message.append(match1.group(4))
+    elif match2:
+      date.append(match2.group(1))
+      time.append(match2.group(2))
+      user.append(match2.group(3))
+      message.append(match2.group(4))
+    else:
+      unmatched_lines.append(text)
+
+  # print("Unmatched Lines:", unmatched_lines[:10])  # Log unmatched lines
+
+  if not date:
+    # print("No messages matched the patterns.")
+    return None
 
   df = pd.DataFrame({
       'Date': date,
@@ -37,17 +41,22 @@ def preprocess(data):
       'User': user,
       'Message': message
   })
+  df['DateTime'] = pd.to_datetime(df['Date'] + ' ' + df['Time'],
+                                  errors='coerce')
 
-  #date preprocessing
-  df['Only Date'] = pd.to_datetime(df['Date']).dt.date
-  df['Year'] = pd.to_datetime(df['Date']).dt.year
-  df['Month_num'] = pd.to_datetime(df['Date']).dt.month
-  df['Month'] = pd.to_datetime(df['Date']).dt.month_name()
-  df['Day'] = pd.to_datetime(df['Date']).dt.day
-  df['Day_name'] = pd.to_datetime(df['Date']).dt.day_name()
+  # Date components
+  df['Only Date'] = df['DateTime'].dt.date
+  df['Year'] = df['DateTime'].dt.year
+  df['Month_num'] = df['DateTime'].dt.month
+  df['Month'] = df['DateTime'].dt.month_name()
+  df['Day'] = df['DateTime'].dt.day
+  df['Day_name'] = df['DateTime'].dt.day_name()
 
-  #time preprocessing
-  df['Hour'] = pd.to_datetime(df['Time']).dt.hour
-  df['Minute'] = pd.to_datetime(df['Time']).dt.minute
+  # Time components
+  df['Hour'] = df['DateTime'].dt.hour
+  df['Minute'] = df['DateTime'].dt.minute
 
+  df = df.dropna(subset=['DateTime'])  # Drop rows with invalid DateTime
+
+  # print("Final DataFrame:", df.head())  # Log the resulting DataFrame
   return df
