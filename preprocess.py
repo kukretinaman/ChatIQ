@@ -41,10 +41,8 @@ def preprocess(data):
         elif match2:
             last_date = match2.group(1)
             last_time = match2.group(2)
-            date.append(last_date)
-            time.append(last_time)
-            user.append("System")
-            message.append(match2.group(3))
+            # Skip system messages from being added to the dataset
+            continue
         elif match3 and last_date and last_user:
             # Continued message from previous user
             date.append(last_date)
